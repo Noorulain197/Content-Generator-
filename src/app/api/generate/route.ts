@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { z } from "zod";
-import { buildSystemPrompt, buildUserPrompt } from "../../../lib/prompts";
+import { buildSystemPrompt, buildUserPrompt } from "../../././../lib/prompts";
 import { limit } from "../../../lib/rateLimit";
 
 const Body = z.object({
@@ -16,10 +16,16 @@ const Body = z.object({
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: NextRequest) {
-  const ip = req.ip ?? req.headers.get("x-forwarded-for") ?? "unknown";
-  const allowed = await limit(String(ip));
+  // Correct way to get client IP
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0] : "unknown";
+
+  const allowed = await limit(ip);
   if (!allowed.ok) {
-    return NextResponse.json({ error: "Rate limit exceeded. Try again soon." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again soon." },
+      { status: 429 }
+    );
   }
 
   const json = await req.json();
