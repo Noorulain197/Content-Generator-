@@ -4,7 +4,7 @@ import { z } from "zod";
 import { buildSystemPrompt, buildUserPrompt } from "../../../lib/prompts";
 import { limit } from "../../../lib/rateLimit";
 
-// Zod validation schema
+// ✅ Zod validation schema
 const Body = z.object({
   type: z.enum(["blog", "ad", "caption"]),
   tone: z.enum(["Neutral", "Friendly", "Professional", "Bold", "Playful"]),
@@ -14,14 +14,14 @@ const Body = z.object({
   extras: z.string().max(500).optional(),
 });
 
-// Initialize OpenAI client
+// ✅ Initialize OpenAI client (only API key, no mixing with other env vars)
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || "",
 });
 
 export async function POST(req: NextRequest) {
   try {
-    // ✅ Client IP check for rate limiting
+    // ✅ Rate limiting by IP
     const forwarded = req.headers.get("x-forwarded-for");
     const ip = forwarded ? forwarded.split(",")[0] : "unknown";
 
@@ -45,13 +45,13 @@ export async function POST(req: NextRequest) {
 
     const { type, tone, length, language, topic, extras } = parsed.data;
 
-    // Build prompts
+    // ✅ Build prompts
     const system = buildSystemPrompt(type);
     const user = buildUserPrompt({ type, tone, length, language, topic, extras });
 
-    // ✅ Call OpenAI
+    // ✅ Call OpenAI safely
     const resp = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // make sure this model is supported in your account
+      model: "gpt-4o-mini",
       temperature: 0.7,
       messages: [
         { role: "system", content: system },
