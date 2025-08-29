@@ -11,11 +11,11 @@ export type FormState = {
   extras?: string;
 };
 
-export default function Controls({
-  onGenerate,
-}: {
+interface ControlsProps {
   onGenerate: (f: FormState) => Promise<void>;
-}) {
+}
+
+export default function Controls({ onGenerate }: ControlsProps) {
   const [form, setForm] = useState<FormState>({
     type: "blog",
     tone: "Friendly",
