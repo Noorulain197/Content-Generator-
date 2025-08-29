@@ -14,10 +14,16 @@ export default function Output() {
   async function generate(payload: any) {
     setLoading(true);
     try {
-      const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
+
       if (!res.ok) throw new Error(data?.error || "Failed");
-      setText(data.text);
+
+      setText(data.text || "⚠️ No response text");
       const next = [data.text, ...history].slice(0, 20);
       setHistory(next);
       localStorage.setItem("acs_history", JSON.stringify(next));
@@ -29,11 +35,10 @@ export default function Output() {
   }
 
   function copy() {
-    navigator.clipboard.writeText(text);
+    if (text) navigator.clipboard.writeText(text);
   }
 
-  return {
-  View: (
+  return (
     <div className="grid gap-6">
       {/* Output Section */}
       <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
@@ -68,12 +73,11 @@ export default function Output() {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-gray-500">No history yet. Generated content will be saved here.</p>
+          <p className="text-sm text-gray-500">
+            No history yet. Generated content will be saved here.
+          </p>
         )}
       </div>
     </div>
-  ),
-  generate,
-};
-
+  );
 }
