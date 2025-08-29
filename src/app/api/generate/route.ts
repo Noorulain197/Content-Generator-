@@ -15,9 +15,12 @@ const Body = z.object({
 });
 
 // ✅ Initialize OpenAI client (only API key, no mixing with other env vars)
+
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "",
+  apiKey: process.env.OPENAI_API_KEY, // yahi pe rakho
 });
+
 
 export async function POST(req: NextRequest) {
   try {
